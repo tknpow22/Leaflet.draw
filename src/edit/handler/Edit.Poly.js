@@ -87,7 +87,7 @@ L.Edit.Poly = L.Handler.extend({
 	},
 
 	_initMarkers: function() {
-		this._poly.on("edit", this._onEdit, this);
+		this._poly.on('edit', this._onEdit, this);
 
 		if (this._poly._map) {
 			this._map = this._poly._map;
@@ -142,7 +142,7 @@ L.Edit.Poly = L.Handler.extend({
 
 		delete this._map;
 
-		this._poly.off("edit", this._onEdit, this);
+		this._poly.off('edit', this._onEdit, this);
 	},
 
 	_fireEdit: function () {
