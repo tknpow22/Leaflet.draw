@@ -54,7 +54,10 @@ L.Edit.Poly = L.Handler.extend({
 		this._eachVertexHandler(function (handler) {
 			handler.addHooks();
 		});
-		this._initMarkers();
+
+		if (this._poly.options.movable) {
+			this._initMarkers();
+		}
 	},
 
 	// @method removeHooks(): void
@@ -62,7 +65,10 @@ L.Edit.Poly = L.Handler.extend({
 		this._eachVertexHandler(function (handler) {
 			handler.removeHooks();
 		});
-		this._releaseMarkers();
+
+		if (this._poly.options.movable) {
+			this._releaseMarkers();
+		}
 	},
 
 	// @method updateMarkers(): void
