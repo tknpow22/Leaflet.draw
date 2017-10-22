@@ -6,6 +6,7 @@ L.Edit = L.Edit || {};
  * @aka Edit.Poly
  */
 L.Edit.Poly = L.Handler.extend({
+
 	options: {
 		moveIcon: new L.DivIcon({
 			iconSize: new L.Point(8, 8),
@@ -18,7 +19,7 @@ L.Edit.Poly = L.Handler.extend({
 	},
 
 	// @method initialize(): void
-	initialize: function (poly, options) {
+	initialize: function (poly) {
 
 		if (L.Browser.touch) {
 			this.options.moveIcon = this.options.touchMoveIcon;
@@ -30,7 +31,6 @@ L.Edit.Poly = L.Handler.extend({
 		}
 
 		this._poly = poly;
-		L.setOptions(this, options);
 
 		this._poly.on('revert-edited', this._updateLatLngs, this);
 	},
@@ -86,7 +86,7 @@ L.Edit.Poly = L.Handler.extend({
 	_initHandlers: function () {
 		this._verticesHandlers = [];
 		for (var i = 0; i < this.latlngs.length; i++) {
-			this._verticesHandlers.push(new L.Edit.PolyVerticesEdit(this._poly, this.latlngs[i], this.options));
+			this._verticesHandlers.push(new L.Edit.PolyVerticesEdit(this._poly, this.latlngs[i], this._poly.options.poly));
 		}
 	},
 
@@ -301,11 +301,25 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 	// Add listener hooks to this handler.
 	addHooks: function () {
 		var poly = this._poly;
+		var path = poly._path;
 
 		if (!(poly instanceof L.Polygon)) {
 			poly.options.fill = false;
 			if (poly.options.editing) {
 				poly.options.editing.fill = false;
+			}
+		}
+
+		if (path) {
+			if (poly.options.editing.className) {
+				if (poly.options.original.className) {
+					poly.options.original.className.split(' ').forEach(function(className) {
+						L.DomUtil.removeClass(path, className);
+					});
+				}
+				poly.options.editing.className.split(' ').forEach(function(className) {
+					L.DomUtil.addClass(path, className);
+				});
 			}
 		}
 
@@ -326,6 +340,20 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 	// Remove listener hooks from this handler.
 	removeHooks: function () {
 		var poly = this._poly;
+		var path = poly._path;
+
+		if (path) {
+			if (poly.options.editing.className) {
+				poly.options.editing.className.split(' ').forEach(function(className) {
+					L.DomUtil.removeClass(path, className);
+				});
+				if (poly.options.original.className) {
+					poly.options.original.className.split(' ').forEach(function(className) {
+						L.DomUtil.addClass(path, className);
+					});
+				}
+			}
+		}
 
 		poly.setStyle(poly.options.original);
 
@@ -640,7 +668,7 @@ L.Polyline.addInitHook(function () {
 
 	if (L.Edit.Poly) {
 
-		this.editing = new L.Edit.Poly(this, this.options.poly);
+		this.editing = new L.Edit.Poly(this);
 
 		if (this.options.editable) {
 			this.editing.enable();
